@@ -1,6 +1,6 @@
 # Systems Engineering
 
-This repositories houses the work for my final project for the course Systems Engineering being offered at Rowan University during Spring 2026.
+This repositories houses the work of group final project for the Systems Engineering course being offered at Rowan University during Spring 2026.
 
 # Building Paper
 

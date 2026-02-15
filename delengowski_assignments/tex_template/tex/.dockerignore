@@ -1,0 +1,34 @@
+# BASIC STUFF FOR .dockerignore
+
+# Ignore common version control directories
+.git
+.svn
+.hg
+
+# Ignore common build/dependency directories
+node_modules/
+vendor/
+target/
+
+# Ignore IDE-specific files and directories
+.idea/
+.vscode/
+*.iml
+
+# Ignore log files
+*.log
+logs/
+
+# Ignore temporary files
+tmp/
+*.tmp
+
+# Ignore environment files
+.env
+
+# vim
+*.swp
+
+# PROJECT SPECIFIC
+build_artifacts
+term_project_proposal_delengowski.md
