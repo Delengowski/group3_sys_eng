@@ -32,6 +32,7 @@ advisory = False
 frames = []
 num_iters_in_advisory = 0
 past_advisory = False
+past_detection = False
 for i in range(len(t)):
     dist = np.sqrt(((vec1[:,i] - vec2[:,i])**2).sum())
 
@@ -47,25 +48,42 @@ for i in range(len(t)):
         num_iters_in_advisory += 1
     else:
         advisory = False
-
+    alt_sep = (vec1[1,i] - vec2[1,i]) 
     # Apply vertical maneuver after advisory
-    if advisory and not ((vec1[1,i] - vec2[1,i]) >= escaped_adv_height):
+    if advisory and not (alt_sep >= escaped_adv_height):
         add = vec1[1,i] + climb_rate * num_iters_in_advisory
         sub = vec2[1,i] - climb_rate * num_iters_in_advisory
-        print(add, sub)
         vec1[1,i] = add
         vec2[1,i] = sub
+    adjusted_alt_sep = (vec1[1,i] - vec2[1,i])
 
     # Annotations
     annotations = []
 
-    if detected:
+    annotations.append(dict(
+        x=0.10, y=1,
+        xref="paper", yref="paper",
+        text=(
+            "<b>Parameters</b><br>"
+            f"R_s = {R_s*ft_to_nm} nm<br>"
+            f"R_adv = {R_adv*ft_to_nm} nm<br>"
+            f"H = {escaped_adv_height} ft"
+        ),
+        showarrow=False,
+        align="left",
+        bordercolor="black",
+        borderwidth=0
+    ))
+
+    if detected: # Annotation when TCAS-SURV-001 logic is activated
         annotations.append(dict(
             x=0, y=30500,
             text="Aircraft Detected",
             showarrow=False,
             font=dict(color="orange")
         ))
+    elif past_detection: # Annotation when TCAS-TRACK-005 is activated, no longer in detection range
+        ... 
     adjusted_dist = np.sqrt(((vec1[:,i] - vec2[:,i])**2).sum())
     if adjusted_dist <= R_adv:
         annotations.append(dict(
@@ -75,8 +93,22 @@ for i in range(len(t)):
             font=dict(color="red")
         ))
 
-    if (vec1[1,i] - vec2[1,i]) >= escaped_adv_height:
-        if not past_advisory:
+    annotations.append(dict(
+        x=0.10, y=0.6,
+        xref="paper", yref="paper",
+        text=(
+            "<b>Live Data</b><br>"
+            f"Horizontal Dist: {adjusted_dist*ft_to_nm:.2f} nm<br>"
+            f"Vertical Sep: {adjusted_alt_sep:.0f} ft"
+        ),
+        showarrow=False,
+        align="left",
+        bordercolor="black",
+        borderwidth=1
+    ))
+
+    if (adjusted_alt_sep) >= escaped_adv_height:
+        if not past_advisory: # Annontation when TCAS-ADV-005 is activated
             # latch onto last altititude bc sim is contrived to hold constant alt once clear
             vec1[1,i:] = vec1[1,i]
             vec2[1,i:] = vec2[1,i]
@@ -98,8 +130,6 @@ for i in range(len(t)):
 
 # Initial figure
 fig = go.Figure(
-    #render_mode="webgl",
-    #animation_frame=t,
     data=[
         go.Scatter(x=[x1[0]], y=[alt1[0]], mode="markers", name="Aircraft A"),
         go.Scatter(x=[x2[0]], y=[alt2[0]], mode="markers", name="Aircraft B")
@@ -117,7 +147,6 @@ fig = go.Figure(
     ),
     frames=frames
 )
-from pathlib import Path
-parent = Path(__file__).parents[1]
-fig.write_html(parent / "index.html")
-#fig.show()
+
+#fig.write_html(parent / "tcas_simulation_FOOBARBOB.html")
+fig.show()
