@@ -117,6 +117,7 @@ fig = go.Figure(
     ),
     frames=frames
 )
-
-fig.write_html("index.html")
+from pathlib import Path
+parent = Path(__file__).parents[1]
+fig.write_html(parent / "index.html")
 #fig.show()
