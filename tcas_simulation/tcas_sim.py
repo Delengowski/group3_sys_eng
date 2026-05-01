@@ -118,5 +118,5 @@ fig = go.Figure(
     frames=frames
 )
 
-fig.write_html("tcas_2d_simulation.html")
-fig.show()
+fig.write_html("index.html")
+#fig.show()
